@@ -128,6 +128,14 @@ let
           variable with that same name and value when the function is defined.
         '';
       };
+
+      completion = mkOption {
+        type = types.lines;
+        default = "";
+        description = ''
+          Fish completion code for the function.
+        '';
+      };
     };
   };
 
@@ -681,6 +689,14 @@ in
                   ${lib.strings.removeSuffix "\n" body}
                 end
               '';
+          };
+        }) cfg.functions;
+      }
+      {
+        xdg.configFile = lib.mapAttrs' (name: def: {
+          name = "fish/completions/${name}.fish";
+          value = mkIf (isAttrs def && def.completion != "") {
+            source = fishIndent "${name}.fish" def.completion;
           };
         }) cfg.functions;
       }
