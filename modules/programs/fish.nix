@@ -152,6 +152,14 @@ let
           variable with that same name and value when the function is defined.
         '';
       };
+
+      completion = mkOption {
+        type = types.lines;
+        default = "";
+        description = ''
+          Completions for the function.
+        '';
+      }
     };
   };
 
@@ -600,6 +608,14 @@ in
                 end
               '';
           };
+        }) cfg.functions;
+      }
+      {
+        xdg.configFile = lib.mapAttrs' (name: def: mkIf (def.completions != "") {
+          name = "fish/completions/${name}.fish";
+          value = {
+            source = fishIndent "${name}.fish" def.completions
+          }
         }) cfg.functions;
       }
 
